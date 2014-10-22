@@ -2,8 +2,17 @@ package no.bekk.krafthackdroid;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.Log;
+
+import java.util.List;
+
+import no.bekk.krafthackdroid.domain.Mood;
+import no.bekk.krafthackdroid.dto.MoodsDto;
+import no.bekk.krafthackdroid.http.KrafthackWebService;
+import retrofit.Callback;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 
 public class MainActivity extends Activity {
@@ -12,25 +21,23 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-    }
 
+        RestAdapter restAdapter = new RestAdapter.Builder()
+                .setEndpoint(Config.URL)
+                .build();
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
+        KrafthackWebService service = restAdapter.create(KrafthackWebService.class);
+        service.getMoods(new Callback<MoodsDto>() {
+            @Override
+            public void success(MoodsDto mood, Response response) {
+                Log.i("getMoods", "Success");
+            }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+            @Override
+            public void failure(RetrofitError error) {
+                Log.i("getMoods", "Failed");
+            }
+        });
+
     }
 }
